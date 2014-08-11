@@ -34,7 +34,7 @@ extern {
     fn BN_mul(r: *mut BIGNUM, a: *mut BIGNUM, b: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
     fn BN_sqr(r: *mut BIGNUM, a: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
     fn BN_div(dv: *mut BIGNUM, rem: *mut BIGNUM, a: *mut BIGNUM, b: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
-    fn BN_mod(rem: *mut BIGNUM, a: *mut BIGNUM, m: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
+    //fn BN_mod(rem: *mut BIGNUM, a: *mut BIGNUM, m: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
     fn BN_nnmod(rem: *mut BIGNUM, a: *mut BIGNUM, m: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
     fn BN_mod_add(r: *mut BIGNUM, a: *mut BIGNUM, b: *mut BIGNUM, m: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
     fn BN_mod_sub(r: *mut BIGNUM, a: *mut BIGNUM, b: *mut BIGNUM, m: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int;
@@ -73,6 +73,10 @@ extern {
     /* Conversion from/to binary representation */
     fn BN_bn2bin(a: *mut BIGNUM, to: *mut u8) -> c_int;
     fn BN_bin2bn(s: *const u8, size: c_int, ret: *mut BIGNUM) -> *mut BIGNUM;
+}
+
+fn BN_mod(rem: *mut BIGNUM, a: *mut BIGNUM, m: *mut BIGNUM, ctx: *mut BN_CTX) -> c_int{
+    unsafe{BN_div(0 as *mut BIGNUM,rem,a,m,ctx)}
 }
 
 pub struct BigNum(*mut BIGNUM);
@@ -353,6 +357,8 @@ impl BigNum {
             with_bn_in_ctx!(r, ctx, { BN_div(r.raw(), ptr::mut_null(), self.raw(), a.raw(), ctx) == 1 })
         }
     }
+
+
 
     pub fn checked_mod(&self, a: &BigNum) -> Result<BigNum, SslError> {
         unsafe {
